@@ -5,6 +5,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import ua.ypon.hibernate.model.Person;
 
+import java.util.List;
+
 /**
  * Hello world!
  *
@@ -18,21 +20,16 @@ public class App {
         try {
             session.beginTransaction();
 
-            //Person person = session.get(Person.class, 2);
-            //person.setName("New name");//оновлення імені
-            //session.delete(person);//видалення об'єкту
+            //List<Person> people = session.createQuery("FROM Person where age > 30").getResultList();
+            //List<Person> people = session.createQuery("FROM Person where name LIKE 'T%'").getResultList();
+            //session.createQuery("update Person set name = 'Test' where age < 30").executeUpdate();
+            session.createQuery("delete from Person where age < 30").executeUpdate();
 
-            Person person1 = new Person("Test1", 30);
-            Person person2 = new Person("Test2", 34);
-            Person person3 = new Person("Test3", 45);
-
-            session.save(person1);
-            session.save(person2);
-            session.save(person3);
+//            for (Person person : people) {
+//                System.out.println(person);
+//            }
 
             session.getTransaction().commit();
-
-            System.out.println(person1.getId());//отримуємо id сутності
 
         } finally {
             sessionFactory.close();
