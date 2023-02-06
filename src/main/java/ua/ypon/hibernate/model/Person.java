@@ -1,6 +1,10 @@
 package ua.ypon.hibernate.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Cascade;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity//помічається клас зв'язаний з БД
 @Table(name = "Person")
@@ -16,11 +20,14 @@ public class Person {
     @Column(name = "age")
     private int age;
 
+    @OneToMany(mappedBy = "owner")
+    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
+    private List<Item> items;
+
     public Person() {
     }
 
     public Person(String name, int age) {
-        this.id = id;
         this.name = name;
         this.age = age;
     }
@@ -49,10 +56,27 @@ public class Person {
         this.age = age;
     }
 
+    public List<Item> getItems() {
+        return items;
+    }
+
+    public void setItems(List<Item> items) {
+        this.items = items;
+    }
+
+    public void addItem(Item item) {
+        if (this.items == null) {
+            this.items = new ArrayList<>();
+        }
+        this.items.add(item);
+        item.setOwner(this);
+    }
+
     @Override
     public String toString() {
         return "Person{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", age=" + age +
                 '}';
     }
