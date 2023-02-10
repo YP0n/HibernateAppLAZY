@@ -1,17 +1,16 @@
 package ua.ypon.hibernate.model;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Cascade;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Entity//помічається клас зв'язаний з БД
+@Entity
 @Table(name = "Person")
 public class Person {
+
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)//вказуємо, що генерація id проходить на стороні postresql
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "name")
@@ -20,9 +19,8 @@ public class Person {
     @Column(name = "age")
     private int age;
 
-    @OneToMany(mappedBy = "owner")
-    @Cascade(org.hibernate.annotations.CascadeType.SAVE_UPDATE)
-    private List<Item> items;
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    private List<Items> items;
 
     public Person() {
     }
@@ -56,20 +54,12 @@ public class Person {
         this.age = age;
     }
 
-    public List<Item> getItems() {
+    public List<Items> getItems() {
         return items;
     }
 
-    public void setItems(List<Item> items) {
+    public void setItems(List<Items> items) {
         this.items = items;
-    }
-
-    public void addItem(Item item) {
-        if (this.items == null) {
-            this.items = new ArrayList<>();
-        }
-        this.items.add(item);
-        item.setOwner(this);
     }
 
     @Override
