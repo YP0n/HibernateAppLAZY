@@ -1,64 +1,44 @@
 package ua.ypon.hibernate;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import ua.ypon.hibernate.model.Actor;
-import ua.ypon.hibernate.model.Movie;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import ua.ypon.hibernate.model.Items;
+import ua.ypon.hibernate.model.Person;
 
 
 public class App {
     public static void main(String[] args) {
-        Configuration configuration = new Configuration().addAnnotatedClass(Actor.class)
-                .addAnnotatedClass(Movie.class);
+        Configuration configuration = new Configuration().addAnnotatedClass(Person.class)
+                .addAnnotatedClass(Items.class);
 
-        SessionFactory sessionFactory = configuration.buildSessionFactory();
+        SessionFactory sessionFactory = configuration.buildSessionFactory();//Об'єкт який предоставляє можливість роботи з Hibernate
         try (sessionFactory) {
             Session session = sessionFactory.getCurrentSession();
             session.beginTransaction();
 
-            Actor actor = session.get(Actor.class, 2);
-            System.out.println(actor.getMovies());
-
-            Movie movieToRemove = actor.getMovies().get(0);//отримуємо фільм для актора(який хочемо видалити) за індексом(0)
-
-            actor.getMovies().remove(0);//отримуємо список фільмів і видаляємо фільм за індексом(0)(сторона актера)
-            movieToRemove.getActors().remove(actor);//отримуємо актера і видаляємо його(сторона вільму)
-
-
-//            Movie movie = new Movie("Reservoir Dogs", 1992);
-//            Actor actor = session.get(Actor.class, 1);
-//            movie.setActors(new ArrayList<>(Collections.singleton(actor)));
-//            actor.getMovies().add(movie);//отримуємо список стрічок з актором і за допомогою
-            // persistentСТАНУ-новий фільм hibernate зв'яже з актором
-            //session.save(movie);
-
-
- //            Actor actor = session.get(Actor.class, 2);
-//            System.out.println(actor.getMovies());
-
-//            Movie movie = session.get(Movie.class, 1);
-//            System.out.println(movie.getActors());
-
-            //Movie movie = new Movie("Pulp fiction", 1994);
-//            Actor actor1 = new Actor("Harvey Keitel", 81);
-//            Actor actor2 = new Actor("Samuel L. Jackson", 72);
-//
-//            movie.setActors(new ArrayList<>(List.of(actor1, actor2)));
-//
-//            actor1.setMovies(new ArrayList<>(Collections.singletonList(movie)));
-//            actor2.setMovies(new ArrayList<>(Collections.singletonList(movie)));
-//
-//            session.save(movie);
-
-            //session.save(actor1);
-            //session.save(actor2);
+            Person person = session.get(Person.class, 1);
+            System.out.println("Отримуємо людину з таблиці");
 
             session.getTransaction().commit();
+
+            System.out.println("Сесія закінчилась (session.close)");
+
+            //Відкриваємо сесію ще раз(в будь-якому місці коду)
+            session = sessionFactory.getCurrentSession();
+            session.beginTransaction();
+
+            System.out.println("Всередені транзакції");
+
+            person = (Person) session.merge(person);//зв'язуємо сутність з новою сесією
+            Hibernate.initialize(person.getItems());
+            session.getTransaction().commit();
+
+            System.out.println("Поза другою сесією");
+
+            //Це працює, бо зв'язані товари були завантажені
+            System.out.println(person.getItems());
         }
     }
 }
